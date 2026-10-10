@@ -68,7 +68,7 @@ class HandbookTest extends TestCase
         $this->get(route('handbook'))->assertRedirect();
 
         Livewire::actingAs($this->userWith())->test('handbook::home')->assertForbidden();
-        Livewire::actingAs($this->userWith('view handbook'))->test('handbook::documents-edit')->assertForbidden();
+        Livewire::actingAs($this->userWith('view handbook'))->test('handbook::documents-move', ['document' => $this->welcome])->assertForbidden();
     }
 
     public function test_a_reader_sees_the_handbook_without_edit_buttons()
@@ -84,7 +84,7 @@ class HandbookTest extends TestCase
             ->assertSee('Welcome to the handbook')
             ->assertSee('Writing in markdown')              // the tree and the child pages
             ->assertSeeHtml('<strong>markdown</strong>')
-            ->assertDontSee(route('handbook.documents.edit', $this->welcome))   // no Edit button
+            ->assertDontSee(route('handbook.documents.move', $this->welcome))   // no Move button
             ->call('delete')
             ->assertForbidden();
     }
@@ -97,38 +97,101 @@ class HandbookTest extends TestCase
             ->assertDontSee('Organizing documents');
     }
 
-    public function test_an_editor_creates_a_page_inside_another_and_it_gets_a_revision()
+    protected function version(Document $document): string
+    {
+        return $document->fresh()->updated_at->format('Y-m-d H:i:s');
+    }
+
+    public function test_new_page_is_created_untitled_inside_its_parent_and_opens_in_the_editor()
     {
         $editor = $this->userWith('view handbook', 'edit handbook');
 
-        Livewire::actingAs($editor)
-            ->withQueryParams(['parent' => $this->welcome->id])
-            ->test('handbook::documents-edit')
-            ->assertSet('document.collection_id', $this->collection->id)
-            ->assertSet('document.parent_id', $this->welcome->id)
-            ->set('document.title', 'Release checklist')
-            ->set('document.body', "- [ ] tests green")
-            ->call('save')
-            ->assertHasNoErrors()
-            ->assertRedirect();
+        Livewire::actingAs($editor)->test('handbook::documents-view', ['document' => $this->welcome])
+            ->call('newDocument', null, $this->welcome->id)
+            ->assertRedirectContains('?new=1');
 
-        $doc = Document::where('title', 'Release checklist')->firstOrFail();
-        $this->assertSame($this->welcome->id, $doc->parent_id);
+        $doc = Document::where('parent_id', $this->welcome->id)->latest('created_at')->orderByDesc('id')->firstOrFail();
+        $this->assertSame('', $doc->title);
+        $this->assertSame('Untitled', $doc->label());
+        $this->assertSame($this->collection->id, $doc->collection_id);
         $this->assertSame($editor->id, $doc->created_by);
-        $this->assertSame(1, $doc->revisions()->count());
+
+        Livewire::actingAs($this->userWith('view handbook'))->test('handbook::home')
+            ->call('newDocument')
+            ->assertForbidden();
     }
 
-    public function test_the_form_validates_and_refuses_a_parent_below_the_document()
+    public function test_the_editor_saves_title_and_text_in_place()
+    {
+        $editor = $this->userWith('view handbook', 'edit handbook');
+
+        $result = Livewire::actingAs($editor)->test('handbook::documents-view', ['document' => $this->welcome])
+            ->assertSee('handbookEditor', false)
+            ->call('saveContent', 'Welcome aboard', "## Hello\n\n- [ ] read this", $this->version($this->welcome))
+            ->assertHasNoErrors()
+            ->effects['returns'][0];
+
+        $this->assertSame('Welcome aboard', $result['label']);
+        $doc = $this->welcome->fresh();
+        $this->assertSame('Welcome aboard', $doc->title);
+        $this->assertSame("## Hello\n\n- [ ] read this", $doc->body);
+        $this->assertSame($editor->id, $doc->updated_by);
+        $this->assertSame($result['version'], $this->version($doc));
+    }
+
+    public function test_a_reader_cannot_save_and_gets_no_editor()
+    {
+        $reader = $this->userWith('view handbook');
+
+        Livewire::actingAs($reader)->test('handbook::documents-view', ['document' => $this->welcome])
+            ->assertDontSee('handbookEditor', false)
+            ->call('saveContent', 'Hacked', 'x', $this->version($this->welcome))
+            ->assertForbidden();
+
+        $this->assertSame('Welcome to the handbook', $this->welcome->fresh()->title);
+    }
+
+    public function test_a_save_based_on_an_old_version_of_someone_else_is_refused()
+    {
+        $ada = $this->userWith('edit handbook');
+        $bob = $this->userWith('edit handbook');
+        $loaded = $this->version($this->welcome);
+
+        $this->travel(5)->seconds();
+        Livewire::actingAs($bob)->test('handbook::documents-view', ['document' => $this->welcome])
+            ->call('saveContent', 'Bob', 'by Bob', $loaded);
+
+        $result = Livewire::actingAs($ada)->test('handbook::documents-view', ['document' => $this->welcome])
+            ->call('saveContent', 'Ada', 'by Ada', $loaded)
+            ->effects['returns'][0];
+
+        $this->assertTrue($result['conflict']);
+        $this->assertSame('by Bob', $this->welcome->fresh()->body);
+    }
+
+    public function test_the_saves_of_a_few_minutes_are_one_revision()
+    {
+        $editor = $this->userWith('edit handbook');
+        $before = $this->welcome->revisions()->count();
+        $component = Livewire::actingAs($editor)->test('handbook::documents-view', ['document' => $this->welcome]);
+
+        $component->call('saveContent', 'One', 'first', $this->version($this->welcome));
+        $this->travel(1)->minutes();
+        $component->call('saveContent', 'One', 'second', $this->version($this->welcome));
+        $this->assertSame($before + 1, $this->welcome->revisions()->count());
+        $this->assertSame('second', $this->welcome->revisions()->first()->body);
+
+        $this->travel(11)->minutes();
+        $component->call('saveContent', 'One', 'third', $this->version($this->welcome));
+        $this->assertSame($before + 2, $this->welcome->revisions()->count());
+    }
+
+    public function test_the_move_form_refuses_a_parent_below_the_document_or_elsewhere()
     {
         $editor = $this->userWith('edit handbook');
         $child = Document::where('title', 'Writing in markdown')->firstOrFail();
 
-        Livewire::actingAs($editor)->test('handbook::documents-edit')
-            ->set('document.title', '')
-            ->call('save')
-            ->assertHasErrors(['document.title' => 'required']);
-
-        Livewire::actingAs($editor)->test('handbook::documents-edit', ['document' => $this->welcome])
+        Livewire::actingAs($editor)->test('handbook::documents-move', ['document' => $this->welcome])
             ->set('document.parent_id', $child->id)
             ->call('save')
             ->assertHasErrors('document.parent_id');
@@ -136,19 +199,22 @@ class HandbookTest extends TestCase
         $other = Collection::create(['name' => 'Other']);
         $foreign = Document::create(['collection_id' => $other->id, 'title' => 'Elsewhere']);
 
-        Livewire::actingAs($editor)->test('handbook::documents-edit', ['document' => $child])
+        Livewire::actingAs($editor)->test('handbook::documents-move', ['document' => $child])
             ->set('document.parent_id', $foreign->id)
             ->call('save')
             ->assertHasErrors('document.parent_id');
 
         $this->assertSame($this->welcome->id, $child->fresh()->parent_id);
+
+        Livewire::actingAs($this->userWith('view handbook'))->test('handbook::documents-move', ['document' => $child])
+            ->assertForbidden();
     }
 
     public function test_moving_a_document_to_another_collection_takes_its_pages_along()
     {
         $other = Collection::create(['name' => 'Handbook']);
 
-        Livewire::actingAs($this->userWith('edit handbook'))->test('handbook::documents-edit', ['document' => $this->welcome])
+        Livewire::actingAs($this->userWith('edit handbook'))->test('handbook::documents-move', ['document' => $this->welcome])
             ->set('document.collection_id', $other->id)
             ->assertSet('document.parent_id', null)
             ->call('save')
@@ -156,6 +222,13 @@ class HandbookTest extends TestCase
 
         $this->assertSame(3, $other->documents()->count());
         $this->assertSame(0, $this->collection->documents()->count());
+    }
+
+    public function test_the_editor_assets_are_served_by_the_module()
+    {
+        $this->get(route('handbook.asset', 'editor.js'))->assertOk()->assertHeader('Content-Type', 'application/javascript; charset=utf-8');
+        $this->get(route('handbook.asset', 'editor.css'))->assertOk();
+        $this->get(route('handbook.asset', 'composer.json'))->assertNotFound();
     }
 
     public function test_deleting_a_document_moves_its_pages_up()

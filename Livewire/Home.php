@@ -4,6 +4,7 @@ namespace App\Modules\Handbook\Livewire;
 
 use App\Modules\Auth\Traits\Authorize;
 use App\Modules\Auth\Traits\Limit;
+use App\Modules\Handbook\Livewire\Concerns\CreatesDocuments;
 use App\Modules\Handbook\Models\Collection;
 use App\Modules\Handbook\Models\Document;
 use Livewire\Attributes\Url;
@@ -11,7 +12,7 @@ use Livewire\Component;
 
 class Home extends Component
 {
-    use Authorize, Limit;
+    use Authorize, Limit, CreatesDocuments;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';

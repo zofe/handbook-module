@@ -29,7 +29,7 @@
         <x-rpd::card>
             @if ($selected)
                 <div class="d-flex flex-wrap align-items-start gap-2 mb-3">
-                    <h1 class="h3 flex-grow-1 mb-0">{{ $selected->title }}</h1>
+                    <h1 class="h3 flex-grow-1 mb-0">{{ $selected->title !== '' ? $selected->title : __('Untitled') }}</h1>
                     @if ($canEdit && $selected->id !== $current?->id)
                         <x-rpd::button click="restore('{{ $selected->id }}')" color="primary" size="sm" icon="rotate-left" label="Restore this version"
                                        confirm="The document goes back to this version; the current one stays in the history." />
@@ -37,7 +37,7 @@
                 </div>
                 <div class="hb-markdown">{!! $selected->html() !!}</div>
             @else
-                <h1 class="h3">{{ $document->title }}</h1>
+                <h1 class="h3">{{ $document->label() }}</h1>
                 <div class="hb-markdown">{!! $document->html() !!}</div>
             @endif
         </x-rpd::card>

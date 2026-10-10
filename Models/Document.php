@@ -16,7 +16,7 @@ class Document extends Model
 
     protected $fillable = ['collection_id', 'parent_id', 'title', 'body', 'position', 'created_by', 'updated_by'];
 
-    protected $attributes = ['position' => 0];
+    protected $attributes = ['position' => 0, 'title' => ''];
 
     // Used by the search box (SSearch): title or text.
     public static function ssearchFallback($query, $limit = null)
@@ -57,6 +57,12 @@ class Document extends Model
         return $this->belongsTo(config('auth.providers.users.model'), 'updated_by');
     }
 
+    /** The title, or "Untitled" for a page just created and not named yet. */
+    public function label(): string
+    {
+        return trim((string) $this->title) !== '' ? $this->title : __('Untitled');
+    }
+
     /** The body as safe HTML (see Support\Markdown). */
     public function html(): string
     {
@@ -93,14 +99,25 @@ class Document extends Model
     }
 
     /**
-     * Keep the version just saved in the history, then drop the oldest beyond
-     * config('handbook.revisions'). A save that changed neither title nor body adds nothing.
+     * Keep the version just saved in the history. Like Outline, the saves of one person within
+     * config('handbook.revision_window') minutes are one revision: the editor saves every pause,
+     * and a history with a line per pause would be unreadable. Pass $window = 0 to always add one.
+     * A save that changed neither title nor body adds nothing; beyond config('handbook.revisions')
+     * the oldest revisions go.
      */
-    public function saveRevision($userId = null): ?Revision
+    public function saveRevision($userId = null, ?int $window = null): ?Revision
     {
+        $window ??= (int) config('handbook.revision_window', 10);
         $last = $this->revisions()->first();
         if ($last && $last->title === $this->title && $last->body === $this->body) {
             return null;
+        }
+
+        if ($last && $window > 0 && $userId !== null && (string) $last->user_id === (string) $userId
+            && $last->created_at?->gt(now()->subMinutes($window))) {
+            $last->update(['title' => $this->title, 'body' => $this->body]);
+
+            return $last;
         }
 
         $revision = $this->revisions()->create([

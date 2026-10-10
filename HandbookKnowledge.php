@@ -20,9 +20,9 @@ class HandbookKnowledge
             ->latest('updated_at')
             ->get()
             ->map(fn (Document $doc) => [
-                'title' => $doc->title,
-                'file' => $doc->collection?->name . ' / ' . $doc->title,
-                'text' => '# ' . $doc->title . "\n\n" . trim((string) $doc->body),
+                'title' => $doc->label(),
+                'file' => $doc->collection?->name . ' / ' . $doc->label(),
+                'text' => '# ' . $doc->label() . "\n\n" . trim((string) $doc->body),
                 'updated_at' => $doc->updated_at?->toDateTimeString(),
                 'url' => route('handbook.documents.view', $doc),
             ])

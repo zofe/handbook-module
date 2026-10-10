@@ -45,7 +45,7 @@ class DocumentsHistory extends Component
         $this->document->body = $revision->body;
         $this->document->updated_by = auth()->id();
         $this->document->save();
-        $this->document->saveRevision(auth()->id());
+        $this->document->saveRevision(auth()->id(), 0);   // a restore is always its own entry
 
         session()->flash('success', __('Revision restored.'));
 

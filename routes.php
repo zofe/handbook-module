@@ -2,8 +2,8 @@
 
 use App\Modules\Handbook\Livewire\CollectionsEdit;
 use App\Modules\Handbook\Livewire\CollectionsView;
-use App\Modules\Handbook\Livewire\DocumentsEdit;
 use App\Modules\Handbook\Livewire\DocumentsHistory;
+use App\Modules\Handbook\Livewire\DocumentsMove;
 use App\Modules\Handbook\Livewire\DocumentsView;
 use App\Modules\Handbook\Livewire\Home;
 use App\Modules\Handbook\Models\Collection;
@@ -44,19 +44,17 @@ Route::get('handbook/documents/view/{document}', DocumentsView::class)
         $d = $document($d);
         $crumbs->parent('handbook.collections.view', $d->collection);
         foreach ($d->ancestors() as $ancestor) {
-            $crumbs->push($ancestor->title, route_lang('handbook.documents.view', $ancestor));
+            $crumbs->push($ancestor->label(), route_lang('handbook.documents.view', $ancestor));
         }
-        $crumbs->push($d->title, route_lang('handbook.documents.view', $d));
+        $crumbs->push($d->label(), route_lang('handbook.documents.view', $d));
     });
 
-Route::get('handbook/documents/edit/{document?}', DocumentsEdit::class)
+Route::get('handbook/documents/move/{document}', DocumentsMove::class)
     ->middleware(['web', 'auth'])
-    ->name('handbook.documents.edit')
-    ->crumbs(function ($crumbs, $d = null) use ($document) {
-        $d = $d ? $document($d) : null;
-        $d
-            ? $crumbs->parent('handbook.documents.view', $d)->push(__('Edit'), route_lang('handbook.documents.edit', $d))
-            : $crumbs->parent('handbook')->push(__('New document'), route_lang('handbook.documents.edit'));
+    ->name('handbook.documents.move')
+    ->crumbs(function ($crumbs, $d) use ($document) {
+        $d = $document($d);
+        $crumbs->parent('handbook.documents.view', $d)->push(__('Move'), route_lang('handbook.documents.move', $d));
     });
 
 Route::get('handbook/documents/history/{document}', DocumentsHistory::class)
@@ -66,3 +64,13 @@ Route::get('handbook/documents/history/{document}', DocumentsHistory::class)
         $d = $document($d);
         $crumbs->parent('handbook.documents.view', $d)->push(__('History'), route_lang('handbook.documents.history', $d));
     });
+
+// The editor, built into dist/ (npm run build): served from the package, nothing to publish.
+Route::get('handbook/assets/{file}', function (string $file) {
+    abort_unless(in_array($file, ['editor.js', 'editor.css'], true), 404);
+
+    return response()->file(\App\Modules\Handbook\Support\Assets::path($file), [
+        'Content-Type' => str_ends_with($file, '.js') ? 'application/javascript; charset=utf-8' : 'text/css; charset=utf-8',
+        'Cache-Control' => 'public, max-age=31536000, immutable',
+    ]);
+})->name('handbook.asset');

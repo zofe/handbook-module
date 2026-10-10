@@ -21,4 +21,8 @@ return [
 
     // How many revisions a document keeps; the oldest go first. 0 = all of them.
     'revisions' => (int) env('HANDBOOK_REVISIONS', 50),
+
+    // The editor saves at every pause: the saves of one person within these minutes are one
+    // revision of the history, like Outline does. 0 = a revision per save.
+    'revision_window' => (int) env('HANDBOOK_REVISION_WINDOW', 10),
 ];

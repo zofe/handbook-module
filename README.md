@@ -2,9 +2,9 @@
 
 <a href="https://github.com/zofe/handbook-module/actions/workflows/run-tests.yml"><img src="https://github.com/zofe/handbook-module/actions/workflows/run-tests.yml/badge.svg" alt="Tests"></a>
 
-A knowledge base for [Rapyd Admin](https://github.com/zofe/rapyd-admin) in the spirit of [Outline](https://www.getoutline.com):
-**collections** of **markdown documents** nested in a tree, a writing view with live preview, search, and the
-**history** of every document with one-click restore. Plain Laravel + Livewire, built from `x-rpd::` components.
+The team handbook for [Rapyd Admin](https://github.com/zofe/rapyd-admin), in the spirit of [Outline](https://www.getoutline.com):
+**collections** of documents nested in a tree, **edited in place** (the page is the editor, saved as you type),
+stored as **markdown**, with search and the **history** of every document. Plain Laravel + Livewire.
 
 ## Install
 
@@ -24,19 +24,42 @@ permissions.
 |------|-------|-|
 | Home | `/handbook` | collections, recently updated documents, search on title and text |
 | Collection | `/handbook/collections/view/{id}` | the document tree |
-| Document | `/handbook/documents/view/{id}` | rendered markdown, the tree on the side, the pages inside it |
-| Editor | `/handbook/documents/edit/{id?}` | title, collection, parent, markdown with a toolbar; *Write / Preview* tabs on a phone, side by side on a desktop |
-| History | `/handbook/documents/history/{id}` | every saved version, restore one |
+| Document | `/handbook/documents/view/{id}` | the document, editable in place; the tree on the side |
+| Move | `/handbook/documents/move/{id}` | collection, parent and position of a document |
+| History | `/handbook/documents/history/{id}` | the versions of a document, restore one |
 
-- **Markdown** is GitHub flavoured (tables, task lists, strikethrough). HTML typed in a document is escaped and
-  `javascript:` links are dropped: a document is text, never markup.
-- **Permissions**: `view handbook` reads, `edit handbook` writes (collections, documents, restoring a revision). Every id
-  that comes from the browser (parent, collection, revision) is looked up again on the server.
-- **Moving**: *Inside* puts a document under another one of the same collection (never under itself or its own
-  pages); changing *Collection* moves the document with all the pages below it.
-- **Deleting** a document moves its pages up one level; a collection can be deleted only when empty.
-- **History**: each save that changes title or text adds a revision; `HANDBOOK_REVISIONS` (default 50) caps how many
-  a document keeps.
+**Editing in place.** Whoever holds `edit handbook` writes directly on the document page:
+
+- markdown shortcuts while typing: `## ` a heading, `- ` a list, `1. ` a numbered list, `[ ] ` a checklist,
+  `> ` a quote, ```` ``` ```` a code block, `**bold**`, `_italic_`;
+- `/` opens the block menu (headings, lists, checklist, quote, code, table, divider);
+- selecting text shows the formatting bubble; on a phone a toolbar stays above the keyboard;
+- **New page** creates an untitled page inside the current one and puts the cursor on the title;
+  Enter in the title moves to the text;
+- the page saves itself after a pause ("Saved" next to the buttons). It sends the version it was loaded at:
+  when someone else saved in between, nothing is overwritten and the page asks to reload.
+
+The text is kept as **markdown** (GitHub flavoured: tables, task lists, strikethrough): readable in the database,
+in a diff, by the AI module. On display HTML typed in the text is escaped and `javascript:` links are dropped.
+
+- **Permissions**: `view handbook` reads, `edit handbook` writes. Every id coming from the browser (parent,
+  collection, revision) is looked up again on the server, and `saveContent` checks `edit handbook` itself.
+- **History**: the saves of one person within `HANDBOOK_REVISION_WINDOW` minutes (default 10) are one revision,
+  as in Outline; a document keeps `HANDBOOK_REVISIONS` of them (default 50). Restoring adds a revision.
+- **Moving**: changing the collection moves the document with all the pages below it; a document never goes
+  under itself or one of its own pages. **Deleting** one moves its pages up a level; a collection can be deleted
+  only when empty.
+
+### The editor
+
+[TipTap](https://tiptap.dev) (ProseMirror) with [tiptap-markdown](https://github.com/aguingand/tiptap-markdown),
+in `resources/js/editor.js`, built into `dist/editor.js` and served by the module at `/handbook/assets/editor.js`:
+the application needs no build step and nothing to publish. After changing it:
+
+```bash
+npm install
+npm run build
+```
 
 ## The handbook as knowledge of the AI assistant
 
@@ -50,10 +73,13 @@ AI_KNOWLEDGE="App\Modules\Handbook\HandbookKnowledge"
 
 ```
 handbook-module/
-├─ Livewire/       Home, CollectionsView, CollectionsEdit, DocumentsView, DocumentsEdit, DocumentsHistory
+├─ Livewire/       Home, CollectionsView, CollectionsEdit, DocumentsView (editor + saveContent), DocumentsMove,
+│                  DocumentsHistory; Concerns/CreatesDocuments (New document / New page)
 ├─ Views/          the pages, menu, tree (recursive), markdown_style
+├─ resources/      js/editor.js, css/editor.css: the editor sources
+├─ dist/           the built editor, shipped
 ├─ Models/         Collection (tree()), Document (SSearch, ancestors, revisions), Revision
-├─ Support/        Markdown: safe markdown → HTML
+├─ Support/        Markdown (safe markdown → HTML), Assets (editor URLs)
 ├─ Database/       migration (handbook_collections, handbook_documents, handbook_revisions) and the seeder
 ├─ Lang/           it.json
 ├─ config.php      layout, menu, permissions, revisions kept

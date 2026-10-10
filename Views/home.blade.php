@@ -3,7 +3,7 @@
         <x-slot name="buttons">
             @if ($canEdit)
                 <x-rpd::button route="handbook.collections.edit" color="outline-dark" label="New collection" />
-                <x-rpd::button route="handbook.documents.edit" color="outline-primary" label="New document" />
+                <x-rpd::button click="newDocument" color="outline-primary" label="New document" />
             @endif
         </x-slot>
 
@@ -17,7 +17,7 @@
                 @foreach ($results as $doc)
                     <a href="{{ route_lang('handbook.documents.view', $doc->id) }}" class="list-group-item list-group-item-action">
                         <div class="d-flex justify-content-between gap-2">
-                            <strong class="text-truncate">{{ $doc->title }}</strong>
+                            <strong class="text-truncate">{{ $doc->label() }}</strong>
                             <small class="text-secondary text-nowrap">{{ $doc->collection?->name }}</small>
                         </div>
                         <small class="text-secondary">{{ \App\Modules\Handbook\Support\Markdown::excerpt($doc->body) }}</small>
@@ -57,7 +57,7 @@
                 <div class="list-group list-group-flush">
                     @foreach ($recent as $doc)
                         <a href="{{ route_lang('handbook.documents.view', $doc->id) }}" class="list-group-item list-group-item-action d-flex justify-content-between gap-2 px-1">
-                            <span class="text-truncate">{{ $doc->title }} <small class="text-secondary">· {{ $doc->collection?->name }}</small></span>
+                            <span class="text-truncate">{{ $doc->label() }} <small class="text-secondary">· {{ $doc->collection?->name }}</small></span>
                             <small class="text-secondary text-nowrap">{{ $doc->updated_at?->diffForHumans() }}</small>
                         </a>
                     @endforeach

@@ -4,12 +4,13 @@ namespace App\Modules\Handbook\Livewire;
 
 use App\Modules\Auth\Traits\Authorize;
 use App\Modules\Auth\Traits\Limit;
+use App\Modules\Handbook\Livewire\Concerns\CreatesDocuments;
 use App\Modules\Handbook\Models\Collection;
 use Livewire\Component;
 
 class CollectionsView extends Component
 {
-    use Authorize, Limit;
+    use Authorize, Limit, CreatesDocuments;
 
     public Collection $collection;
 

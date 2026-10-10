@@ -8,18 +8,20 @@ use App\Modules\Handbook\Models\Collection;
 use App\Modules\Handbook\Models\Document;
 use Livewire\Component;
 
-class DocumentsEdit extends Component
+/**
+ * Where a document lives: its collection, the document it sits inside, its position among
+ * its siblings. Title and text are edited in place on the document page.
+ */
+class DocumentsMove extends Component
 {
     use Authorize, Limit;
 
     public Document $document;
 
-    // Fields bound with x-rpd:: components: also what survives between requests on a new model.
+    // Fields bound with x-rpd:: components; collection and parent are checked again in save().
     protected $rules = [
-        'document.title'         => 'required|string|max:255',
         'document.collection_id' => 'required|exists:handbook_collections,id',
         'document.parent_id'     => 'nullable|exists:handbook_documents,id',
-        'document.body'          => 'nullable|string|max:1000000',
         'document.position'      => 'nullable|integer|min:0',
     ];
 
@@ -29,29 +31,9 @@ class DocumentsEdit extends Component
         $this->limit();
     }
 
-    /**
-     * A new document starts where the link was: ?parent=<id> (a child page, same
-     * collection) or ?collection=<id>; both are looked up, never trusted as they are.
-     */
-    public function mount(?Document $document = null): void
+    public function mount(Document $document): void
     {
-        if ($document?->exists) {
-            $this->document = $document;
-
-            return;
-        }
-
-        $this->document = new Document();
-        $parentId = request()->query('parent');
-        $collectionId = request()->query('collection');
-        if (is_string($parentId) && $parent = Document::find($parentId)) {
-            $this->document->parent_id = $parent->id;
-            $this->document->collection_id = $parent->collection_id;
-        } elseif (is_string($collectionId) && $collection = Collection::find($collectionId)) {
-            $this->document->collection_id = $collection->id;
-        } elseif ($collection = Collection::orderBy('position')->orderBy('name')->first()) {
-            $this->document->collection_id = $collection->id;
-        }
+        $this->document = $document;
     }
 
     public function updatedDocumentCollectionId(): void
@@ -69,14 +51,11 @@ class DocumentsEdit extends Component
             return null;
         }
 
-        $movedCollection = $this->document->exists
-            && Document::whereKey($this->document->id)->value('collection_id') !== $this->document->collection_id;
-        $userId = auth()->id();
+        $movedCollection = Document::whereKey($this->document->id)->value('collection_id') !== $this->document->collection_id;
 
         $this->document->parent_id = $this->document->parent_id ?: null;
         $this->document->position = (int) $this->document->position;
-        $this->document->created_by ??= $userId;
-        $this->document->updated_by = $userId;
+        $this->document->updated_by = auth()->id();
         $this->document->save();
 
         if ($movedCollection) {
@@ -84,8 +63,7 @@ class DocumentsEdit extends Component
             Document::whereIn('id', $this->document->descendantIds())->update(['collection_id' => $this->document->collection_id]);
         }
 
-        $this->document->saveRevision($userId);
-        session()->flash('success', __('Document saved.'));
+        session()->flash('success', __('Document moved.'));
 
         return redirect()->to(route_lang('handbook.documents.view', $this->document));
     }
@@ -97,17 +75,18 @@ class DocumentsEdit extends Component
             return collect();
         }
 
-        $exclude = $this->document->exists ? [$this->document->id, ...$this->document->descendantIds()] : [];
+        $exclude = [$this->document->id, ...$this->document->descendantIds()];
 
         return Document::where('collection_id', $this->document->collection_id)
             ->whereNotIn('id', $exclude)
             ->orderBy('title')
-            ->pluck('title', 'id');
+            ->get(['id', 'title'])
+            ->mapWithKeys(fn (Document $doc) => [$doc->id => $doc->label()]);
     }
 
     public function render()
     {
-        return view('handbook::documents_edit', [
+        return view('handbook::documents_move', [
             'collections' => Collection::orderBy('position')->orderBy('name')->pluck('name', 'id')->toArray(),
             'parents' => $this->parentOptions()->toArray(),
         ])->layout('layout::admin');

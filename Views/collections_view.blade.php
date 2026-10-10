@@ -5,7 +5,7 @@
         <x-slot name="buttons">
             @if ($canEdit)
                 <x-rpd::button :route="['handbook.collections.edit', $collection->id]" color="outline-dark" label="Edit" />
-                <x-rpd::button :href="route_lang('handbook.documents.edit', ['collection' => $collection->id])" color="outline-primary" label="New document" />
+                <x-rpd::button click="newDocument('{{ $collection->id }}')" color="outline-primary" label="New document" />
             @endif
         </x-slot>
 
