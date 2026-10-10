@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Modules\Wiki\Support;
+namespace App\Modules\Handbook\Support;
 
 use Illuminate\Support\Str;
 
 /**
- * Markdown to HTML for the wiki: GitHub flavoured (tables, task lists,
+ * Markdown to HTML for the handbook: GitHub flavoured (tables, task lists,
  * strikethrough, autolinks). Raw HTML in the text is escaped and javascript:
  * or data: links are dropped, so the output is printed with {!! !!} safely:
  * a document is text written by users, never markup.

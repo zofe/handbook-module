@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('wiki_collections', function (Blueprint $table) {
+        Schema::create('handbook_collections', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
             $table->text('description')->nullable();
@@ -17,9 +17,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('wiki_documents', function (Blueprint $table) {
+        Schema::create('handbook_documents', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('collection_id')->constrained('wiki_collections')->cascadeOnDelete();
+            $table->foreignUuid('collection_id')->constrained('handbook_collections')->cascadeOnDelete();
             $table->uuid('parent_id')->nullable()->index();
             $table->string('title');
             $table->longText('body')->nullable();
@@ -30,9 +30,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('wiki_revisions', function (Blueprint $table) {
+        Schema::create('handbook_revisions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('document_id')->constrained('wiki_documents')->cascadeOnDelete();
+            $table->foreignUuid('document_id')->constrained('handbook_documents')->cascadeOnDelete();
             $table->string('title');
             $table->longText('body')->nullable();
             $table->string('user_id', 36)->nullable();
@@ -42,8 +42,8 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('wiki_revisions');
-        Schema::dropIfExists('wiki_documents');
-        Schema::dropIfExists('wiki_collections');
+        Schema::dropIfExists('handbook_revisions');
+        Schema::dropIfExists('handbook_documents');
+        Schema::dropIfExists('handbook_collections');
     }
 };

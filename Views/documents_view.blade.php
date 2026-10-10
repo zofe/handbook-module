@@ -1,17 +1,17 @@
 <div>
-    @include('wiki::markdown_style')
+    @include('handbook::markdown_style')
 <div class="row g-3">
     <div class="col-lg-3 order-2 order-lg-1">
         <x-rpd::card>
             <details class="d-lg-none">
                 <summary class="fw-semibold">{{ $document->collection->name }}</summary>
-                <div class="mt-2">@include('wiki::tree', ['nodes' => $tree, 'current' => $document->id])</div>
+                <div class="mt-2">@include('handbook::tree', ['nodes' => $tree, 'current' => $document->id])</div>
             </details>
             <div class="d-none d-lg-block">
-                <a href="{{ route_lang('wiki.collections.view', $document->collection_id) }}" class="d-block fw-semibold text-body text-decoration-none mb-2">
+                <a href="{{ route_lang('handbook.collections.view', $document->collection_id) }}" class="d-block fw-semibold text-body text-decoration-none mb-2">
                     <x-rpd::icon :name="$document->collection->icon ?: 'folder'" class="text-primary me-1" />{{ $document->collection->name }}
                 </a>
-                @include('wiki::tree', ['nodes' => $tree, 'current' => $document->id])
+                @include('handbook::tree', ['nodes' => $tree, 'current' => $document->id])
             </div>
         </x-rpd::card>
     </div>
@@ -22,10 +22,10 @@
                 <h1 class="h3 flex-grow-1 mb-0">{{ $document->title }}</h1>
                 <div class="d-flex flex-wrap gap-1">
                     @if ($canEdit)
-                        <x-rpd::button :route="['wiki.documents.edit', $document->id]" color="primary" size="sm" icon="pen" label="Edit" />
-                        <x-rpd::button :href="route_lang('wiki.documents.edit', ['parent' => $document->id])" color="outline-primary" size="sm" icon="plus" label="New page" />
+                        <x-rpd::button :route="['handbook.documents.edit', $document->id]" color="primary" size="sm" icon="pen" label="Edit" />
+                        <x-rpd::button :href="route_lang('handbook.documents.edit', ['parent' => $document->id])" color="outline-primary" size="sm" icon="plus" label="New page" />
                     @endif
-                    <x-rpd::button :route="['wiki.documents.history', $document->id]" color="outline-dark" size="sm" icon="clock-rotate-left" label="History" />
+                    <x-rpd::button :route="['handbook.documents.history', $document->id]" color="outline-dark" size="sm" icon="clock-rotate-left" label="History" />
                     @if ($canEdit)
                         <x-rpd::button click="delete" color="outline-danger" size="sm" icon="trash" label="Delete"
                                        confirm="Delete this document? The pages below it move up one level." />
@@ -39,7 +39,7 @@
             @if (trim((string) $document->body) === '')
                 <p class="text-secondary fst-italic">{{ __('This document is empty.') }}</p>
             @else
-                <div class="wiki-markdown">{!! $document->html() !!}</div>
+                <div class="hb-markdown">{!! $document->html() !!}</div>
             @endif
 
             @if ($document->children->isNotEmpty())
@@ -47,7 +47,7 @@
                 <h6 class="text-secondary">{{ __('Pages in this document') }}</h6>
                 <div class="list-group list-group-flush">
                     @foreach ($document->children as $child)
-                        <a href="{{ route_lang('wiki.documents.view', $child->id) }}" class="list-group-item list-group-item-action px-1">
+                        <a href="{{ route_lang('handbook.documents.view', $child->id) }}" class="list-group-item list-group-item-action px-1">
                             <x-rpd::icon name="file-lines" class="text-secondary me-1" />{{ $child->title }}
                         </a>
                     @endforeach

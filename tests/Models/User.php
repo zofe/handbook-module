@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Wiki\Tests\Models;
+namespace App\Modules\Handbook\Tests\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Foundation\Auth\User as Authenticatable;

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Modules\Wiki\Livewire;
+namespace App\Modules\Handbook\Livewire;
 
 use App\Modules\Auth\Traits\Authorize;
 use App\Modules\Auth\Traits\Limit;
-use App\Modules\Wiki\Models\Collection;
-use App\Modules\Wiki\Models\Document;
+use App\Modules\Handbook\Models\Collection;
+use App\Modules\Handbook\Models\Document;
 use Livewire\Component;
 
 class DocumentsEdit extends Component
@@ -17,15 +17,15 @@ class DocumentsEdit extends Component
     // Fields bound with x-rpd:: components: also what survives between requests on a new model.
     protected $rules = [
         'document.title'         => 'required|string|max:255',
-        'document.collection_id' => 'required|exists:wiki_collections,id',
-        'document.parent_id'     => 'nullable|exists:wiki_documents,id',
+        'document.collection_id' => 'required|exists:handbook_collections,id',
+        'document.parent_id'     => 'nullable|exists:handbook_documents,id',
         'document.body'          => 'nullable|string|max:1000000',
         'document.position'      => 'nullable|integer|min:0',
     ];
 
     public function booted(): void
     {
-        $this->authorize('admin|edit wiki', $this->document);
+        $this->authorize('admin|edit handbook', $this->document);
         $this->limit();
     }
 
@@ -87,7 +87,7 @@ class DocumentsEdit extends Component
         $this->document->saveRevision($userId);
         session()->flash('success', __('Document saved.'));
 
-        return redirect()->to(route_lang('wiki.documents.view', $this->document));
+        return redirect()->to(route_lang('handbook.documents.view', $this->document));
     }
 
     /** The documents this one may be placed under: same collection, not itself, not below itself. */
@@ -107,7 +107,7 @@ class DocumentsEdit extends Component
 
     public function render()
     {
-        return view('wiki::documents_edit', [
+        return view('handbook::documents_edit', [
             'collections' => Collection::orderBy('position')->orderBy('name')->pluck('name', 'id')->toArray(),
             'parents' => $this->parentOptions()->toArray(),
         ])->layout('layout::admin');

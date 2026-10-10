@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Wiki\Models;
+namespace App\Modules\Handbook\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +10,7 @@ class Collection extends Model
 {
     use HasUuids, ShortId;
 
-    protected $table = 'wiki_collections';
+    protected $table = 'handbook_collections';
 
     protected $fillable = ['name', 'description', 'icon', 'position'];
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\Wiki\Tests;
+namespace App\Modules\Handbook\Tests;
 
-use App\Modules\Wiki\WikiServiceProvider;
+use App\Modules\Handbook\HandbookServiceProvider;
 use Illuminate\Support\Facades\Artisan;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
@@ -22,7 +22,7 @@ class TestCase extends Orchestra
             RapydServiceProvider::class,
             LivewireServiceProvider::class,
             \Lab404\Impersonate\ImpersonateServiceProvider::class,
-            WikiServiceProvider::class,
+            HandbookServiceProvider::class,
         ];
     }
 

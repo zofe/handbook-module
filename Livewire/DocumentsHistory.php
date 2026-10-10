@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\Wiki\Livewire;
+namespace App\Modules\Handbook\Livewire;
 
 use App\Modules\Auth\Traits\Authorize;
 use App\Modules\Auth\Traits\Limit;
-use App\Modules\Wiki\Models\Document;
+use App\Modules\Handbook\Models\Document;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -19,7 +19,7 @@ class DocumentsHistory extends Component
 
     public function booted(): void
     {
-        $this->authorize('admin|view wiki|edit wiki', $this->document);
+        $this->authorize('admin|view handbook|edit handbook', $this->document);
         $this->limit();
     }
 
@@ -36,7 +36,7 @@ class DocumentsHistory extends Component
     /** Bring a revision back: it becomes the current text, and a new entry of the history. */
     public function restore(string $id)
     {
-        $this->authorize('admin|edit wiki', $this->document);
+        $this->authorize('admin|edit handbook', $this->document);
 
         // looked up among the revisions of this document only
         $revision = $this->document->revisions()->whereKey($id)->firstOrFail();
@@ -49,7 +49,7 @@ class DocumentsHistory extends Component
 
         session()->flash('success', __('Revision restored.'));
 
-        return redirect()->to(route_lang('wiki.documents.view', $this->document));
+        return redirect()->to(route_lang('handbook.documents.view', $this->document));
     }
 
     public function render()
@@ -57,11 +57,11 @@ class DocumentsHistory extends Component
         $revisions = $this->document->revisions()->with('user')->get();
         $selected = $revisions->firstWhere('id', $this->revision) ?? $revisions->first();
 
-        return view('wiki::documents_history', [
+        return view('handbook::documents_history', [
             'revisions' => $revisions,
             'selected' => $selected,
             'current' => $revisions->first(),
-            'canEdit' => (bool) auth()->user()?->hasRoleOrPermission('admin|edit wiki'),
+            'canEdit' => (bool) auth()->user()?->hasRoleOrPermission('admin|edit handbook'),
         ])->layout('layout::admin');
     }
 }

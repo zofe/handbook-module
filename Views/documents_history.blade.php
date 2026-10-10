@@ -1,11 +1,11 @@
 <div>
-    @include('wiki::markdown_style')
+    @include('handbook::markdown_style')
 <div class="row g-3">
     <div class="col-lg-4">
         <x-rpd::card>
             <div class="d-flex align-items-center mb-3">
                 <h2 class="h5 flex-grow-1 mb-0">{{ __('History') }}</h2>
-                <x-rpd::button :route="['wiki.documents.view', $document->id]" color="outline-dark" size="sm" label="Back" />
+                <x-rpd::button :route="['handbook.documents.view', $document->id]" color="outline-dark" size="sm" label="Back" />
             </div>
             @if ($revisions->isEmpty())
                 <p class="text-secondary mb-0">{{ __('No revisions yet: the history starts with the next save.') }}</p>
@@ -35,10 +35,10 @@
                                        confirm="The document goes back to this version; the current one stays in the history." />
                     @endif
                 </div>
-                <div class="wiki-markdown">{!! $selected->html() !!}</div>
+                <div class="hb-markdown">{!! $selected->html() !!}</div>
             @else
                 <h1 class="h3">{{ $document->title }}</h1>
-                <div class="wiki-markdown">{!! $document->html() !!}</div>
+                <div class="hb-markdown">{!! $document->html() !!}</div>
             @endif
         </x-rpd::card>
     </div>

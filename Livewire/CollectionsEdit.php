@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\Wiki\Livewire;
+namespace App\Modules\Handbook\Livewire;
 
 use App\Modules\Auth\Traits\Authorize;
 use App\Modules\Auth\Traits\Limit;
-use App\Modules\Wiki\Models\Collection;
+use App\Modules\Handbook\Models\Collection;
 use Livewire\Component;
 
 class CollectionsEdit extends Component
@@ -23,7 +23,7 @@ class CollectionsEdit extends Component
 
     public function booted(): void
     {
-        $this->authorize('admin|edit wiki', $this->collection);
+        $this->authorize('admin|edit handbook', $this->collection);
         $this->limit();
     }
 
@@ -40,7 +40,7 @@ class CollectionsEdit extends Component
 
         session()->flash('success', __('Collection saved.'));
 
-        return redirect()->to(route_lang('wiki.collections.view', $this->collection));
+        return redirect()->to(route_lang('handbook.collections.view', $this->collection));
     }
 
     /** Only an empty collection goes: documents are never deleted in bulk. */
@@ -56,11 +56,11 @@ class CollectionsEdit extends Component
         $this->collection->delete();
         session()->flash('success', __('Collection deleted.'));
 
-        return redirect()->to(route_lang('wiki'));
+        return redirect()->to(route_lang('handbook'));
     }
 
     public function render()
     {
-        return view('wiki::collections_edit')->layout('layout::admin');
+        return view('handbook::collections_edit')->layout('layout::admin');
     }
 }

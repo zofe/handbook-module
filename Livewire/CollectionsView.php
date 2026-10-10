@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\Wiki\Livewire;
+namespace App\Modules\Handbook\Livewire;
 
 use App\Modules\Auth\Traits\Authorize;
 use App\Modules\Auth\Traits\Limit;
-use App\Modules\Wiki\Models\Collection;
+use App\Modules\Handbook\Models\Collection;
 use Livewire\Component;
 
 class CollectionsView extends Component
@@ -15,7 +15,7 @@ class CollectionsView extends Component
 
     public function booted(): void
     {
-        $this->authorize('admin|view wiki|edit wiki', $this->collection);
+        $this->authorize('admin|view handbook|edit handbook', $this->collection);
         $this->limit();
     }
 
@@ -26,8 +26,8 @@ class CollectionsView extends Component
 
     public function render()
     {
-        return view('wiki::collections_view', [
-            'canEdit' => (bool) auth()->user()?->hasRoleOrPermission('admin|edit wiki'),
+        return view('handbook::collections_view', [
+            'canEdit' => (bool) auth()->user()?->hasRoleOrPermission('admin|edit handbook'),
             'tree' => $this->collection->tree(),
         ])->layout('layout::admin');
     }

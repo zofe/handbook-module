@@ -1,7 +1,7 @@
 <x-rpd::card>
     <x-rpd::edit :title="$collection->exists ? 'Edit collection' : 'New collection'">
         <x-slot name="buttons">
-            <x-rpd::button :href="$collection->exists ? route_lang('wiki.collections.view', $collection->id) : route_lang('wiki')" color="outline-dark" label="Back" />
+            <x-rpd::button :href="$collection->exists ? route_lang('handbook.collections.view', $collection->id) : route_lang('handbook')" color="outline-dark" label="Back" />
         </x-slot>
 
         <div class="row">

@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Modules\Wiki\Database\Seeders;
+namespace App\Modules\Handbook\Database\Seeders;
 
-use App\Modules\Wiki\Models\Collection;
-use App\Modules\Wiki\Models\Document;
+use App\Modules\Handbook\Models\Collection;
+use App\Modules\Handbook\Models\Document;
 use Illuminate\Database\Seeder;
 
 /**
- * A first collection to look at: how the wiki works, written in the wiki.
+ * A first collection to look at: how the handbook works, written in the handbook.
  *
- *     php artisan db:seed --class="App\Modules\Wiki\Database\Seeders\WikiSeeder"
+ *     php artisan db:seed --class="App\Modules\Handbook\Database\Seeders\HandbookSeeder"
  *
  * It adds the collection only when there is none with the same name.
  */
-class WikiSeeder extends Seeder
+class HandbookSeeder extends Seeder
 {
     public function run(): void
     {
@@ -23,13 +23,13 @@ class WikiSeeder extends Seeder
 
         $collection = Collection::create([
             'name' => 'Getting started',
-            'description' => 'How this wiki works: collections, pages inside pages, markdown and history.',
+            'description' => 'How this handbook works: collections, pages inside pages, markdown and history.',
             'icon' => 'rocket',
             'position' => 0,
         ]);
 
-        $welcome = $this->page($collection, null, 0, 'Welcome to the wiki', <<<'MD'
-The wiki keeps what the team knows in one place, written in **markdown**.
+        $welcome = $this->page($collection, null, 0, 'Welcome to the handbook', <<<'MD'
+The handbook keeps what the team knows in one place, written in **markdown**.
 
 - A **collection** groups the documents of one subject: *Handbook*, *Projects*, *Customers*.
 - A **document** can hold other documents: the tree on the side is the table of contents.
@@ -62,7 +62,7 @@ Write **bold**, _italic_, ~~strikethrough~~ and `inline code`. Links are [plain 
 ## Code
 
 ```php
-Route::get('wiki', Home::class)->name('wiki');
+Route::get('handbook', Home::class)->name('handbook');
 ```
 
 HTML typed in a document is shown as text, never run: <b>this</b> stays as it is.

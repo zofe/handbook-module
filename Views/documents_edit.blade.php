@@ -1,9 +1,9 @@
 <div>
-    @include('wiki::markdown_style')
+    @include('handbook::markdown_style')
 <x-rpd::card>
     <x-rpd::edit :title="$document->exists ? 'Edit document' : 'New document'">
         <x-slot name="buttons">
-            <x-rpd::button :href="$document->exists ? route_lang('wiki.documents.view', $document->id) : route_lang('wiki')" color="outline-dark" label="Back" />
+            <x-rpd::button :href="$document->exists ? route_lang('handbook.documents.view', $document->id) : route_lang('handbook')" color="outline-dark" label="Back" />
         </x-slot>
 
         <div class="row">
@@ -15,9 +15,9 @@
         </div>
 
         {{-- Write | Preview: tabs on a phone, side by side from lg up --}}
-        <div class="wiki-editor mt-3" x-data="{
+        <div class="hb-editor mt-3" x-data="{
                 tab: 'write',
-                el() { return document.getElementById('wiki-body') },
+                el() { return document.getElementById('hb-body') },
                 done(el) { el.focus(); el.dispatchEvent(new Event('input', { bubbles: true })) },
                 wrap(before, after, sample) {
                     const el = this.el(), s = el.selectionStart, e = el.selectionEnd;
@@ -54,12 +54,12 @@
                             <button type="button" class="btn btn-outline-secondary" title="{{ __('Quote') }}" @click="line('> ')"><x-rpd::icon name="quote-left" /></button>
                         </div>
                     </div>
-                    <x-rpd::textarea model="document.body" id="wiki-body" rows="18" debounce="400" placeholder="Write in markdown..." />
+                    <x-rpd::textarea model="document.body" id="hb-body" rows="18" debounce="400" placeholder="Write in markdown..." />
                 </div>
                 <div class="col-lg-6" :class="tab === 'preview' ? '' : 'd-none d-lg-block'">
                     <div class="d-none d-lg-block small text-secondary mb-2 pt-1">{{ __('Preview') }}</div>
-                    <div class="wiki-preview wiki-markdown border rounded p-3">
-                        {!! \App\Modules\Wiki\Support\Markdown::toHtml($document->body) !!}
+                    <div class="hb-preview handbook-markdown border rounded p-3">
+                        {!! \App\Modules\Handbook\Support\Markdown::toHtml($document->body) !!}
                     </div>
                 </div>
             </div>

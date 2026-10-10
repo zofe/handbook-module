@@ -1,26 +1,26 @@
 <x-rpd::card>
-    <x-rpd::view title="Wiki">
+    <x-rpd::view title="Handbook">
         <x-slot name="buttons">
             @if ($canEdit)
-                <x-rpd::button route="wiki.collections.edit" color="outline-dark" label="New collection" />
-                <x-rpd::button route="wiki.documents.edit" color="outline-primary" label="New document" />
+                <x-rpd::button route="handbook.collections.edit" color="outline-dark" label="New collection" />
+                <x-rpd::button route="handbook.documents.edit" color="outline-primary" label="New document" />
             @endif
         </x-slot>
 
         <div class="row mb-4">
-            <x-rpd::input col="col-12" model="search" debounce="300" icon="search" placeholder="Search the wiki..." />
+            <x-rpd::input col="col-12" model="search" debounce="300" icon="search" placeholder="Search the handbook..." />
         </div>
 
         @if ($results !== null)
             <h6 class="text-secondary mb-3">{{ trans_choice('{0} Nothing found|{1} :count document|[2,*] :count documents', $results->count(), ['count' => $results->count()]) }}</h6>
             <div class="list-group mb-4">
                 @foreach ($results as $doc)
-                    <a href="{{ route_lang('wiki.documents.view', $doc->id) }}" class="list-group-item list-group-item-action">
+                    <a href="{{ route_lang('handbook.documents.view', $doc->id) }}" class="list-group-item list-group-item-action">
                         <div class="d-flex justify-content-between gap-2">
                             <strong class="text-truncate">{{ $doc->title }}</strong>
                             <small class="text-secondary text-nowrap">{{ $doc->collection?->name }}</small>
                         </div>
-                        <small class="text-secondary">{{ \App\Modules\Wiki\Support\Markdown::excerpt($doc->body) }}</small>
+                        <small class="text-secondary">{{ \App\Modules\Handbook\Support\Markdown::excerpt($doc->body) }}</small>
                     </a>
                 @endforeach
             </div>
@@ -37,7 +37,7 @@
                 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-4">
                     @foreach ($collections as $collection)
                         <div class="col">
-                            <a href="{{ route_lang('wiki.collections.view', $collection->id) }}" class="card h-100 text-decoration-none text-body">
+                            <a href="{{ route_lang('handbook.collections.view', $collection->id) }}" class="card h-100 text-decoration-none text-body">
                                 <div class="card-body">
                                     <h5 class="card-title mb-1">
                                         <x-rpd::icon :name="$collection->icon ?: 'folder'" class="text-primary me-1" />
@@ -56,7 +56,7 @@
                 <h6 class="text-secondary mb-2">{{ __('Recently updated') }}</h6>
                 <div class="list-group list-group-flush">
                     @foreach ($recent as $doc)
-                        <a href="{{ route_lang('wiki.documents.view', $doc->id) }}" class="list-group-item list-group-item-action d-flex justify-content-between gap-2 px-1">
+                        <a href="{{ route_lang('handbook.documents.view', $doc->id) }}" class="list-group-item list-group-item-action d-flex justify-content-between gap-2 px-1">
                             <span class="text-truncate">{{ $doc->title }} <small class="text-secondary">· {{ $doc->collection?->name }}</small></span>
                             <small class="text-secondary text-nowrap">{{ $doc->updated_at?->diffForHumans() }}</small>
                         </a>

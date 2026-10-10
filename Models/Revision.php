@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\Wiki\Models;
+namespace App\Modules\Handbook\Models;
 
-use App\Modules\Wiki\Support\Markdown;
+use App\Modules\Handbook\Support\Markdown;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Zofe\Rapyd\Traits\ShortId;
@@ -11,7 +11,7 @@ class Revision extends Model
 {
     use HasUuids, ShortId;
 
-    protected $table = 'wiki_revisions';
+    protected $table = 'handbook_revisions';
 
     const UPDATED_AT = null;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\Wiki\Models;
+namespace App\Modules\Handbook\Models;
 
-use App\Modules\Wiki\Support\Markdown;
+use App\Modules\Handbook\Support\Markdown;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Zofe\Rapyd\Traits\SSearch;
@@ -12,7 +12,7 @@ class Document extends Model
 {
     use HasUuids, ShortId, SSearch;
 
-    protected $table = 'wiki_documents';
+    protected $table = 'handbook_documents';
 
     protected $fillable = ['collection_id', 'parent_id', 'title', 'body', 'position', 'created_by', 'updated_by'];
 
@@ -94,7 +94,7 @@ class Document extends Model
 
     /**
      * Keep the version just saved in the history, then drop the oldest beyond
-     * config('wiki.revisions'). A save that changed neither title nor body adds nothing.
+     * config('handbook.revisions'). A save that changed neither title nor body adds nothing.
      */
     public function saveRevision($userId = null): ?Revision
     {
@@ -109,7 +109,7 @@ class Document extends Model
             'user_id' => $userId,
         ]);
 
-        $keep = (int) config('wiki.revisions', 50);
+        $keep = (int) config('handbook.revisions', 50);
         if ($keep > 0) {
             $old = $this->revisions()->skip($keep)->take(PHP_INT_MAX)->pluck('id');
             Revision::whereIn('id', $old)->delete();
