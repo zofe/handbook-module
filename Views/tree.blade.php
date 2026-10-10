@@ -1,0 +1,14 @@
+{{-- The document tree of a collection: $nodes from Collection::tree(), $current the open document id --}}
+<ul class="wiki-tree list-unstyled mb-0 {{ ($level ?? 0) ? 'ms-3 border-start' : '' }}">
+    @foreach ($nodes as $node)
+        <li>
+            <a href="{{ route_lang('wiki.documents.view', $node['document']->id) }}"
+               class="d-block text-truncate text-body rounded px-2 py-1 {{ ($current ?? null) === $node['document']->id ? 'active' : '' }}">
+                {{ $node['document']->title }}
+            </a>
+            @if ($node['children'])
+                @include('wiki::tree', ['nodes' => $node['children'], 'level' => ($level ?? 0) + 1, 'current' => $current ?? null])
+            @endif
+        </li>
+    @endforeach
+</ul>
