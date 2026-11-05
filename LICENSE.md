@@ -1,23 +1,21 @@
-# Licenza proprietaria
+The MIT License (MIT)
 
-Copyright (c) Felice Ostuni — tutti i diritti riservati.
+Copyright (c) zofe <felice.ostuni@gmail.com>
 
-Questo software non è open source. È distribuito ai soli titolari di un
-abbonamento o di una licenza d'uso attiva per i moduli premium di rapyd-admin.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Al titolare di una licenza valida è consentito:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-- installare e usare il software nei propri progetti, inclusi quelli realizzati
-  per i propri clienti;
-- modificarlo per adattarlo alle proprie necessità.
-
-Non è consentito:
-
-- ridistribuire il software, in tutto o in parte, con qualunque mezzo;
-- pubblicarne il codice sorgente, anche modificato;
-- cederlo, rivenderlo o concederlo in sublicenza a terzi.
-
-Il software è fornito "così com'è", senza garanzie di alcun tipo. L'autore non
-risponde di danni derivanti dal suo utilizzo.
-
-Per informazioni sulle licenze: https://rapyd.dev
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

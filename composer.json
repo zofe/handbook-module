@@ -1,7 +1,7 @@
 {
     "name": "zofe/handbook-module",
     "description": "A knowledge base for rapyd-admin in the spirit of Outline: collections, nested markdown documents, live preview, search and revision history",
-    "license": "proprietary",
+    "license": "MIT",
     "type": "library",
     "authors": [
         {
